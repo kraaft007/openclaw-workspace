@@ -52,3 +52,6 @@ alert-state.json
 !scripts/**
 !memory/**
 !MEMORY.md
+
+# Local notes may contain API keys/tokens — do not commit
+TOOLS.md
