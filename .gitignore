@@ -1,0 +1,54 @@
+# --- OpenClaw workspace (moderate) ---
+
+# Secrets / auth / tokens / local state
+.openclaw/
+.clawhub/
+.agents/
+.claude/
+**/.env
+**/.env.*
+**/*secret*
+**/*token*
+
+# Logs
+logs/
+**/*.log
+
+# Output / renders / exports
+output/
+**/dist/
+**/build/
+
+# Temp / cache
+tmp/
+**/.cache/
+**/__pycache__/
+**/*.pyc
+
+# Media (inbound/outbound attachments)
+# NOTE: OpenClaw stores inbound media outside the repo by default; keep this ignored anyway.
+media/
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# Node / Python deps
+node_modules/
+.venv/
+
+# Large backups / archives
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.7z
+**/*.dmg
+
+# Optional: ignore alert state files if generated
+alert-state.json
+
+# Keep workspace docs and skills tracked
+!skills/**
+!scripts/**
+!memory/**
+!MEMORY.md
