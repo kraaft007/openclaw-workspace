@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookmark Manager Demo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .app {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header .user-badge {
+    font-size: 13px;
+    background: #1e293b;
+    padding: 4px 10px;
+    border-radius: 12px;
+    color: #94a3b8;
+  }
+
+  /* Stats bar */
+  .stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 12px 16px;
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .stat-card .num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #38bdf8;
+  }
+
+  .stat-card .label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  /* Search bar */
+  .search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .search-input {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #e2e8f0;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: #38bdf8;
+  }
+
+  .search-input::placeholder { color: #475569; }
+
+  /* Filter tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid #334155;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .tab:hover { border-color: #475569; color: #e2e8f0; }
+  .tab.active { background: #38bdf8; color: #0f172a; border-color: #38bdf8; font-weight: 600; }
+
+  /* Section headers */
+  .section-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  /* Bookmark cards */
+  .bookmark {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .bookmark:hover {
+    background: #253347;
+  }
+
+  .bookmark.favorite {
+    border-left-color: #fbbf24;
+  }
+
+  .bookmark .bm-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .bookmark .bm-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .bookmark .bm-title .fav-star {
+    color: #fbbf24;
+    font-size: 14px;
+  }
+
+  .bookmark .bm-url {
+    font-size: 12px;
+    color: #38bdf8;
+    margin-top: 2px;
+    word-break: break-all;
+  }
+
+  .bookmark .bm-desc {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 6px;
+  }
+
+  .bookmark .bm-tags {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #0f172a;
+    color: #7dd3fc;
+    border: 1px solid #1e3a5f;
+  }
+
+  /* Collections sidebar */
+  .collections {
+    margin-top: 20px;
+  }
+
+  .collection-card {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+
+  .collection-card .col-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .collection-card .col-desc {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .collection-card .col-items {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 6px;
+  }
+
+  .col-bookmark {
+    font-size: 12px;
+    color: #7dd3fc;
+    padding: 2px 0;
+  }
+
+  /* API Demo panel */
+  .api-demo {
+    background: #0c1222;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 20px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+  }
+
+  .api-demo .method {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 6px;
+  }
+
+  .method.get { background: #065f46; color: #6ee7b7; }
+  .method.post { background: #713f12; color: #fde68a; }
+  .method.put { background: #1e3a5f; color: #7dd3fc; }
+  .method.del { background: #7f1d1d; color: #fca5a5; }
+
+  .api-endpoint {
+    color: #e2e8f0;
+    margin-bottom: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .api-endpoint:last-child { border-bottom: none; }
+
+  .api-path { color: #94a3b8; }
+
+  /* Feature badges */
+  .features {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .feature-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #1e293b;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  .feature-badge .icon { font-size: 14px; }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .app { padding: 12px; }
+    .stat-card { min-width: 70px; padding: 10px; }
+    .stat-card .num { font-size: 20px; }
+    .header h1 { font-size: 17px; }
+  }
+
+  /* View switcher */
+  .view-switch {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 3px;
+    width: fit-content;
+  }
+
+  .view-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .view-btn.active {
+    background: #334155;
+    color: #f1f5f9;
+  }
+
+  .view-btn:hover:not(.active) { color: #e2e8f0; }
+
+  .hidden { display: none !important; }
+
+  /* Search result highlight */
+  .search-active .bookmark { opacity: 0.3; }
+  .search-active .bookmark.match { opacity: 1; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #334155;
+    color: #f1f5f9;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <h1>📑 Bookmark Manager</h1>
+    <span class="user-badge">👤 steven</span>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">8</div>
+      <div class="label">Bookmarks</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">3</div>
+      <div class="label">Collections</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">16</div>
+      <div class="label">Tags</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">5</div>
+      <div class="label">Favorites</div>
+    </div>
+  </div>
+
+  <!-- View Switcher -->
+  <div class="view-switch">
+    <button class="view-btn active" onclick="switchView('bookmarks')">Bookmarks</button>
+    <button class="view-btn" onclick="switchView('collections')">Collections</button>
+    <button class="view-btn" onclick="switchView('api')">API Endpoints</button>
+  </div>
+
+  <!-- BOOKMARKS VIEW -->
+  <div id="view-bookmarks">
+    <!-- Search -->
+    <div class="search-bar">
+      <input type="text" class="search-input" placeholder="Search bookmarks..." id="search" oninput="filterBookmarks()">
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="tabs">
+      <span class="tab active" onclick="setFilter('all', this)">All (8)</span>
+      <span class="tab" onclick="setFilter('favorite', this)">⭐ Favorites (5)</span>
+      <span class="tab" onclick="setFilter('python', this)">python</span>
+      <span class="tab" onclick="setFilter('docs', this)">docs</span>
+      <span class="tab" onclick="setFilter('dev-tools', this)">dev-tools</span>
+      <span class="tab" onclick="setFilter('networking', this)">networking</span>
+      <span class="tab" onclick="setFilter('dogs', this)">dogs</span>
+    </div>
+
+    <!-- Bookmarks list -->
+    <div id="bookmarks-list">
+      <div class="bookmark favorite" data-tags="python,docs,reference" data-fav="true" data-title="Python Documentation" data-url="docs.python.org" data-desc="Official Python 3 docs">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title"><span class="fav-star">★</span> Python Documentation</div>
+            <div class="bm-url">docs.python.org/3/</div>
+          </div>
+        </div>
+        <div class="bm-desc">Official Python 3 docs</div>
+        <div class="bm-tags">
+          <span class="tag">python</span>
+          <span class="tag">docs</span>
+          <span class="tag">reference</span>
+        </div>
+      </div>
+
+      <div class="bookmark favorite" data-tags="python,web,fastapi" data-fav="true" data-title="FastAPI Framework" data-url="fastapi.tiangolo.com" data-desc="Modern Python web framework">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title"><span class="fav-star">★</span> FastAPI Framework</div>
+            <div class="bm-url">fastapi.tiangolo.com/</div>
+          </div>
+        </div>
+        <div class="bm-desc">Modern Python web framework</div>
+        <div class="bm-tags">
+          <span class="tag">python</span>
+          <span class="tag">web</span>
+          <span class="tag">fastapi</span>
+        </div>
+      </div>
+
+      <div class="bookmark" data-tags="dev-tools,git" data-fav="false" data-title="GitHub" data-url="github.com" data-desc="Code hosting and collaboration">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title">GitHub</div>
+            <div class="bm-url">github.com</div>
+          </div>
+        </div>
+        <div class="bm-desc">Code hosting and collaboration</div>
+        <div class="bm-tags">
+          <span class="tag">dev-tools</span>
+          <span class="tag">git</span>
+        </div>
+      </div>
+
+      <div class="bookmark" data-tags="news,tech" data-fav="false" data-title="Hacker News" data-url="news.ycombinator.com" data-desc="Tech news and discussion">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title">Hacker News</div>
+            <div class="bm-url">news.ycombinator.com</div>
+          </div>
+        </div>
+        <div class="bm-desc">Tech news and discussion</div>
+        <div class="bm-tags">
+          <span class="tag">news</span>
+          <span class="tag">tech</span>
+        </div>
+      </div>
+
+      <div class="bookmark favorite" data-tags="networking,vpn,docs" data-fav="true" data-title="Tailscale Knowledge Base" data-url="tailscale.com" data-desc="VPN and networking docs">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title"><span class="fav-star">★</span> Tailscale Knowledge Base</div>
+            <div class="bm-url">tailscale.com/kb/</div>
+          </div>
+        </div>
+        <div class="bm-desc">VPN and networking docs</div>
+        <div class="bm-tags">
+          <span class="tag">networking</span>
+          <span class="tag">vpn</span>
+          <span class="tag">docs</span>
+        </div>
+      </div>
+
+      <div class="bookmark favorite" data-tags="openclaw,docs,reference" data-fav="true" data-title="OpenClaw Docs" data-url="docs.openclaw.ai" data-desc="OpenClaw documentation">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title"><span class="fav-star">★</span> OpenClaw Docs</div>
+            <div class="bm-url">docs.openclaw.ai</div>
+          </div>
+        </div>
+        <div class="bm-desc">OpenClaw documentation</div>
+        <div class="bm-tags">
+          <span class="tag">openclaw</span>
+          <span class="tag">docs</span>
+          <span class="tag">reference</span>
+        </div>
+      </div>
+
+      <div class="bookmark" data-tags="python,database,orm" data-fav="false" data-title="SQLAlchemy" data-url="sqlalchemy.org" data-desc="Python SQL toolkit and ORM">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title">SQLAlchemy</div>
+            <div class="bm-url">sqlalchemy.org/</div>
+          </div>
+        </div>
+        <div class="bm-desc">Python SQL toolkit and ORM</div>
+        <div class="bm-tags">
+          <span class="tag">python</span>
+          <span class="tag">database</span>
+          <span class="tag">orm</span>
+        </div>
+      </div>
+
+      <div class="bookmark favorite" data-tags="dogs,training" data-fav="true" data-title="Border Collie Breed Info" data-url="akc.org" data-desc="AKC breed information">
+        <div class="bm-top">
+          <div>
+            <div class="bm-title"><span class="fav-star">★</span> Border Collie Breed Info</div>
+            <div class="bm-url">akc.org/dog-breeds/border-collie/</div>
+          </div>
+        </div>
+        <div class="bm-desc">AKC breed information</div>
+        <div class="bm-tags">
+          <span class="tag">dogs</span>
+          <span class="tag">training</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLECTIONS VIEW -->
+  <div id="view-collections" class="hidden">
+    <div class="collection-card">
+      <div class="col-name">📁 Dev Resources</div>
+      <div class="col-desc">Development tools and documentation</div>
+      <div class="col-items">
+        <div class="col-bookmark">→ Python Documentation</div>
+        <div class="col-bookmark">→ FastAPI Framework</div>
+        <div class="col-bookmark">→ GitHub</div>
+        <div class="col-bookmark">→ SQLAlchemy</div>
+        <div class="col-bookmark">→ OpenClaw Docs</div>
+      </div>
+    </div>
+
+    <div class="collection-card">
+      <div class="col-name">📖 Daily Reading</div>
+      <div class="col-desc">Sites to check regularly</div>
+      <div class="col-items">
+        <div class="col-bookmark">→ GitHub</div>
+        <div class="col-bookmark">→ Hacker News</div>
+      </div>
+    </div>
+
+    <div class="collection-card">
+      <div class="col-name">🏠 Personal</div>
+      <div class="col-desc">Personal interests</div>
+      <div class="col-items">
+        <div class="col-bookmark">→ Tailscale Knowledge Base</div>
+        <div class="col-bookmark">→ Border Collie Breed Info</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API VIEW -->
+  <div id="view-api" class="hidden">
+    <div class="section-header">Authentication</div>
+    <div class="api-demo">
+      <div class="api-endpoint"><span class="method post">POST</span> <span class="api-path">/api/auth/register</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span> <span class="api-path">/api/auth/login</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span> <span class="api-path">/api/auth/refresh</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span> <span class="api-path">/api/auth/me</span></div>
+    </div>
+
+    <div class="section-header">Bookmarks</div>
+    <div class="api-demo">
+      <div class="api-endpoint"><span class="method post">POST</span> <span class="api-path">/api/bookmarks/</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span> <span class="api-path">/api/bookmarks/</span> <span style="color:#64748b">?tag=&search=&favorite=&skip=&limit=</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span> <span class="api-path">/api/bookmarks/{id}</span></div>
+      <div class="api-endpoint"><span class="method put">PUT</span> <span class="api-path">/api/bookmarks/{id}</span></div>
+      <div class="api-endpoint"><span class="method del">DEL</span> <span class="api-path">/api/bookmarks/{id}</span></div>
+    </div>
+
+    <div class="section-header">Tags</div>
+    <div class="api-demo">
+      <div class="api-endpoint"><span class="method get">GET</span> <span class="api-path">/api/tags/</span></div>
+      <div class="api-endpoint"><span class="method del">DEL</span> <span class="api-path">/api/tags/{id}</span></div>
+    </div>
+
+    <div class="section-header">Collections</div>
+    <div class="api-demo">
+      <div class="api-endpoint"><span class="method post">POST</span> <span class="api-path">/api/collections/</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span> <span class="api-path">/api/collections/</span></div>
+      <div class="api-endpoint"><span class="method get">GET</span> <span class="api-path">/api/collections/{id}</span></div>
+      <div class="api-endpoint"><span class="method put">PUT</span> <span class="api-path">/api/collections/{id}</span></div>
+      <div class="api-endpoint"><span class="method del">DEL</span> <span class="api-path">/api/collections/{id}</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span> <span class="api-path">/api/collections/{id}/bookmarks/{bm_id}</span></div>
+      <div class="api-endpoint"><span class="method del">DEL</span> <span class="api-path">/api/collections/{id}/bookmarks/{bm_id}</span></div>
+    </div>
+
+    <div class="section-header">Import / Export</div>
+    <div class="api-demo">
+      <div class="api-endpoint"><span class="method get">GET</span> <span class="api-path">/api/export</span></div>
+      <div class="api-endpoint"><span class="method post">POST</span> <span class="api-path">/api/import</span></div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-badge"><span class="icon">🔐</span> JWT Auth</div>
+    <div class="feature-badge"><span class="icon">🔍</span> Full-text Search</div>
+    <div class="feature-badge"><span class="icon">🏷️</span> Tag System</div>
+    <div class="feature-badge"><span class="icon">📂</span> Collections</div>
+    <div class="feature-badge"><span class="icon">📤</span> Import/Export</div>
+    <div class="feature-badge"><span class="icon">✅</span> 50 Tests</div>
+    <div class="feature-badge"><span class="icon">⚡</span> FastAPI</div>
+    <div class="feature-badge"><span class="icon">🗄️</span> SQLite</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function switchView(view) {
+    document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+    document.getElementById('view-' + view).classList.remove('hidden');
+    document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  let currentFilter = 'all';
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    filterBookmarks();
+  }
+
+  function filterBookmarks() {
+    const search = document.getElementById('search').value.toLowerCase();
+    const bookmarks = document.querySelectorAll('.bookmark');
+    let visibleCount = 0;
+
+    bookmarks.forEach(bm => {
+      const tags = bm.dataset.tags || '';
+      const fav = bm.dataset.fav === 'true';
+      const title = (bm.dataset.title || '').toLowerCase();
+      const url = (bm.dataset.url || '').toLowerCase();
+      const desc = (bm.dataset.desc || '').toLowerCase();
+
+      let show = true;
+
+      // Filter
+      if (currentFilter === 'favorite') {
+        show = fav;
+      } else if (currentFilter !== 'all') {
+        show = tags.includes(currentFilter);
+      }
+
+      // Search
+      if (show && search) {
+        show = title.includes(search) || url.includes(search) || desc.includes(search) || tags.includes(search);
+      }
+
+      bm.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+    });
+
+    if (search) {
+      showToast(visibleCount + ' result' + (visibleCount !== 1 ? 's' : '') + ' found');
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+</script>
+</body>
+</html>

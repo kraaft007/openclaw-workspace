@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Boomer64 CRT Logo — V2 Revisions</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: #1a1a2e;
+    color: #e0d8c8;
+    padding: 30px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    color: #ffb347;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #9a8060;
+    margin-bottom: 40px;
+    font-family: 'Courier New', monospace;
+  }
+  .section {
+    max-width: 800px;
+    margin: 0 auto 50px;
+    background: #2a2a3e;
+    border-radius: 12px;
+    padding: 30px;
+    border: 1px solid #3a3a4e;
+  }
+  .section h2 {
+    font-size: 20px;
+    color: #ffb347;
+    margin-bottom: 6px;
+  }
+  .section .desc {
+    font-size: 13px;
+    color: #9a8060;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 20px;
+  }
+  .preview {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  .preview-item {
+    text-align: center;
+  }
+  .preview-item .label {
+    font-size: 11px;
+    color: #7a6e55;
+    font-family: 'Courier New', monospace;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+  .icon-frame {
+    width: 200px;
+    height: 200px;
+    border: 2px solid #3a3a4e;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f0e8;
+  }
+  .icon-frame-60 {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #3a3a4e;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f5f0e8;
+  }
+  .logo-frame {
+    width: 400px;
+    height: 100px;
+    border: 2px solid #3a3a4e;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f5f0e8;
+  }
+  .changes {
+    margin-top: 20px;
+    padding: 15px;
+    background: #1a1a2e;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .changes li {
+    margin-left: 20px;
+    margin-bottom: 4px;
+  }
+  .changes .done { color: #66bb6a; }
+</style>
+</head>
+<body>
+
+<h1>BOOMER 64 — CRT Logo V2</h1>
+<p class="subtitle">Revised per feedback: smaller CRT, bigger text, new tagline</p>
+
+<!-- ICON SECTION -->
+<div class="section">
+  <h2>Publication Icon</h2>
+  <p class="desc">Ghost icon (shown at 200px and 60px actual size)</p>
+  <div class="preview">
+    <div class="preview-item">
+      <div class="icon-frame">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+          <defs>
+            <filter id="crt-glow"><feGaussianBlur stdDeviation="1.8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <pattern id="scanlines-crt" x="0" y="0" width="120" height="2.5" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="120" height="1.2" fill="#000" opacity="0.25"/></pattern>
+            <radialGradient id="screen-grad" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#fff8e1" stop-opacity="0.15"/><stop offset="100%" stop-color="#1a0a00" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="200" height="200" fill="#f5f0e8"/>
+          <rect x="35" y="14" width="130" height="105" rx="11" ry="11" fill="#d4c9b0" stroke="#a89878" stroke-width="2"/>
+          <rect x="37" y="16" width="126" height="101" rx="9" ry="9" fill="#c8bc9f"/>
+          <rect x="43" y="22" width="114" height="80" rx="6" ry="6" fill="#1a0e04" stroke="#8a7560" stroke-width="1.5"/>
+          <rect x="46" y="25" width="108" height="74" rx="4" ry="4" fill="#0d0700"/>
+          <rect x="46" y="25" width="108" height="74" rx="4" ry="4" fill="#3d1a00" opacity="0.3"/>
+          <rect x="46" y="25" width="108" height="74" rx="4" ry="4" fill="url(#screen-grad)"/>
+          <text x="100" y="74" font-family="'Courier New', Courier, monospace" font-size="40" font-weight="bold" fill="#ffb347" text-anchor="middle" filter="url(#crt-glow)" letter-spacing="-1">B64</text>
+          <rect x="60" y="79" width="80" height="2.5" fill="#ff8c00" opacity="0.6" filter="url(#crt-glow)"/>
+          <text x="100" y="38" font-family="'Courier New', Courier, monospace" font-size="6" fill="#b36b00" text-anchor="middle" letter-spacing="2">BOOMER64</text>
+          <text x="100" y="95" font-family="'Courier New', Courier, monospace" font-size="5.5" fill="#7a4800" text-anchor="middle" letter-spacing="1.5">AI VIBE CODING</text>
+          <rect x="46" y="25" width="108" height="74" rx="4" ry="4" fill="url(#scanlines-crt)" opacity="0.8"/>
+          <circle cx="140" cy="109" r="3" fill="#c8bc9f" stroke="#8a7560" stroke-width="0.8"/>
+          <circle cx="140" cy="109" r="2" fill="#ff6b00" opacity="0.9"><animate attributeName="opacity" values="0.9;0.5;0.9" dur="2.5s" repeatCount="indefinite"/></circle>
+          <circle cx="128" cy="109" r="4" fill="#b8ac95" stroke="#8a7560" stroke-width="0.8"/>
+          <circle cx="128" cy="109" r="1.5" fill="#9a8e77"/>
+          <circle cx="118" cy="109" r="4" fill="#b8ac95" stroke="#8a7560" stroke-width="0.8"/>
+          <circle cx="118" cy="109" r="1.5" fill="#9a8e77"/>
+          <text x="60" y="112" font-family="Arial, sans-serif" font-size="6" fill="#7a6e55" letter-spacing="1">BOOMER64</text>
+          <rect x="85" y="119" width="30" height="14" fill="#c0b49a" stroke="#a89878" stroke-width="1.2" rx="2" ry="0"/>
+          <ellipse cx="100" cy="135" rx="42" ry="8" fill="#c8bc9f" stroke="#a89878" stroke-width="1.2"/>
+          <ellipse cx="100" cy="133" rx="40" ry="6" fill="#d4c9b0"/>
+          <ellipse cx="101" cy="143" rx="44" ry="6" fill="#c0b090" opacity="0.3"/>
+          <text x="100" y="170" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold" fill="#5c3d1a" text-anchor="middle" letter-spacing="2">BOOMER</text>
+          <text x="100" y="170" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold" fill="#ff8c00" text-anchor="middle" letter-spacing="2" dx="84">64</text>
+          <line x1="30" y1="176" x2="170" y2="176" stroke="#d4c9b0" stroke-width="1"/>
+          <text x="100" y="189" font-family="'Courier New', Courier, monospace" font-size="8" fill="#9a8060" text-anchor="middle" letter-spacing="1.5">AI CODING FOR THE GENERATION</text>
+        </svg>
+      </div>
+      <p class="label">200 × 200 (design view)</p>
+    </div>
+    <div class="preview-item">
+      <div class="icon-frame-60">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="60" height="60">
+          <defs>
+            <filter id="crt-glow2"><feGaussianBlur stdDeviation="1.8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <pattern id="scanlines-crt2" x="0" y="0" width="120" height="2.5" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="120" height="1.2" fill="#000" opacity="0.25"/></pattern>
+            <radialGradient id="screen-grad2" cx="50%" cy="45%" r="55%"><stop offset="0%" stop-color="#fff8e1" stop-opacity="0.15"/><stop offset="100%" stop-color="#1a0a00" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="200" height="200" fill="#f5f0e8"/>
+          <rect x="35" y="14" width="130" height="105" rx="11" ry="11" fill="#d4c9b0" stroke="#a89878" stroke-width="2"/>
+          <rect x="37" y="16" width="126" height="101" rx="9" ry="9" fill="#c8bc9f"/>
+          <rect x="43" y="22" width="114" height="80" rx="6" ry="6" fill="#1a0e04" stroke="#8a7560" stroke-width="1.5"/>
+          <rect x="46" y="25" width="108" height="74" rx="4" ry="4" fill="#0d0700"/>
+          <rect x="46" y="25" width="108" height="74" rx="4" ry="4" fill="#3d1a00" opacity="0.3"/>
+          <text x="100" y="74" font-family="'Courier New', Courier, monospace" font-size="40" font-weight="bold" fill="#ffb347" text-anchor="middle" filter="url(#crt-glow2)" letter-spacing="-1">B64</text>
+          <rect x="60" y="79" width="80" height="2.5" fill="#ff8c00" opacity="0.6"/>
+          <text x="100" y="170" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold" fill="#5c3d1a" text-anchor="middle" letter-spacing="2">BOOMER</text>
+          <text x="100" y="170" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold" fill="#ff8c00" text-anchor="middle" letter-spacing="2" dx="84">64</text>
+          <rect x="85" y="119" width="30" height="14" fill="#c0b49a" stroke="#a89878" stroke-width="1.2" rx="2" ry="0"/>
+          <ellipse cx="100" cy="135" rx="42" ry="8" fill="#c8bc9f" stroke="#a89878" stroke-width="1.2"/>
+          <ellipse cx="100" cy="133" rx="40" ry="6" fill="#d4c9b0"/>
+        </svg>
+      </div>
+      <p class="label">60 × 60 (actual Ghost icon size)</p>
+    </div>
+  </div>
+  <div class="changes">
+    <strong>Changes from V1:</strong>
+    <ul>
+      <li class="done">✅ CRT shrunk ~25% — more room below</li>
+      <li class="done">✅ "BOOMER 64" text enlarged to 22px (was 9px) — much more readable</li>
+      <li class="done">✅ Tagline updated: "AI CODING FOR THE GENERATION"</li>
+      <li class="done">✅ Added subtle divider line between name and tagline</li>
+    </ul>
+  </div>
+</div>
+
+<!-- LOGO SECTION -->
+<div class="section">
+  <h2>Publication Logo (Banner)</h2>
+  <p class="desc">Wide format for Ghost header / social banners</p>
+  <div class="preview">
+    <div class="preview-item">
+      <div class="logo-frame">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="400" height="100">
+          <defs>
+            <filter id="crt-glow-w"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <pattern id="scanlines-crt-w" x="0" y="0" width="72" height="2" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="72" height="0.9" fill="#000" opacity="0.22"/></pattern>
+          </defs>
+          <rect width="400" height="100" fill="#f5f0e8" rx="8" ry="8"/>
+          <rect x="10" y="8" width="80" height="62" rx="7" ry="7" fill="#d4c9b0" stroke="#a89878" stroke-width="1.5"/>
+          <rect x="13" y="11" width="74" height="56" rx="5" ry="5" fill="#c8bc9f"/>
+          <rect x="17" y="15" width="66" height="48" rx="4" ry="4" fill="#1a0e04" stroke="#8a7560" stroke-width="1"/>
+          <rect x="20" y="18" width="60" height="42" rx="3" ry="3" fill="#0d0700"/>
+          <text x="50" y="46" font-family="'Courier New', Courier, monospace" font-size="22" font-weight="bold" fill="#ffb347" text-anchor="middle" filter="url(#crt-glow-w)" letter-spacing="-1">B64</text>
+          <rect x="20" y="18" width="60" height="42" rx="3" ry="3" fill="url(#scanlines-crt-w)" opacity="0.9"/>
+          <circle cx="75" cy="64" r="2.5" fill="#ff6b00" opacity="0.9"><animate attributeName="opacity" values="0.9;0.5;0.9" dur="2.5s" repeatCount="indefinite"/></circle>
+          <rect x="40" y="70" width="20" height="10" fill="#c0b49a" stroke="#a89878" stroke-width="1" rx="1"/>
+          <ellipse cx="50" cy="81" rx="28" ry="5" fill="#c8bc9f" stroke="#a89878" stroke-width="1"/>
+          <text x="106" y="44" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" fill="#5c3d1a" letter-spacing="2">BOOMER</text>
+          <text x="285" y="44" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" fill="#ff8c00" letter-spacing="2">64</text>
+          <line x1="106" y1="52" x2="390" y2="52" stroke="#d4c9b0" stroke-width="1"/>
+          <text x="106" y="68" font-family="'Courier New', Courier, monospace" font-size="11" fill="#9a8060" letter-spacing="1.5">AI CODING FOR THE GENERATION</text>
+          <rect x="106" y="76" width="90" height="14" rx="3" fill="#ede6d8" stroke="#c8bc9f" stroke-width="0.8"/>
+          <text x="151" y="86" font-family="'Courier New', Courier, monospace" font-size="7" fill="#7a6e55" text-anchor="middle" letter-spacing="1">MODEL: CRT-1964</text>
+        </svg>
+      </div>
+      <p class="label">400 × 100 (publication logo)</p>
+    </div>
+  </div>
+  <div class="changes">
+    <strong>Changes from V1:</strong>
+    <ul>
+      <li class="done">✅ Tagline changed to: "AI CODING FOR THE GENERATION"</li>
+      <li class="done">✅ Text fits within the horizontal divider line</li>
+      <li class="done">✅ Divider line extended to right border (390px, 10px margin)</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

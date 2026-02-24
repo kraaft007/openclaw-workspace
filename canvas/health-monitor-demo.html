@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Health Monitor — System Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0e17;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .app {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #1e293b;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header .status-pill {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .status-pill.healthy {
+    background: #064e3b;
+    color: #6ee7b7;
+    border: 1px solid #065f46;
+  }
+
+  .status-pill.alert {
+    background: #7f1d1d;
+    color: #fca5a5;
+    border: 1px solid #991b1b;
+    animation: pulse-alert 2s infinite;
+  }
+
+  @keyframes pulse-alert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .pulse-dot.green {
+    background: #34d399;
+    box-shadow: 0 0 6px #34d399;
+  }
+
+  .pulse-dot.red {
+    background: #f87171;
+    box-shadow: 0 0 6px #f87171;
+    animation: pulse-dot-anim 1.5s infinite;
+  }
+
+  @keyframes pulse-dot-anim {
+    0%, 100% { box-shadow: 0 0 4px #f87171; }
+    50% { box-shadow: 0 0 12px #f87171; }
+  }
+
+  /* Timestamp bar */
+  .timestamp-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: #111827;
+    border-radius: 8px;
+  }
+
+  .timestamp-bar .cycle {
+    color: #94a3b8;
+    font-weight: 500;
+  }
+
+  /* Services row */
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .service-card {
+    background: #111827;
+    border-radius: 10px;
+    padding: 14px 16px;
+    border-left: 3px solid #22c55e;
+    transition: all 0.3s;
+  }
+
+  .service-card.down {
+    border-left-color: #ef4444;
+    background: #1a0f0f;
+  }
+
+  .service-card .svc-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .service-card .svc-status {
+    font-size: 12px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .service-card .svc-status.ok { color: #34d399; }
+  .service-card .svc-status.fail { color: #f87171; }
+
+  .service-card .svc-uptime {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  /* Resource gauges */
+  .resources-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .gauge-card {
+    background: #111827;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .gauge-card .gauge-label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .gauge-ring {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 8px;
+  }
+
+  .gauge-ring svg {
+    transform: rotate(-90deg);
+    width: 80px;
+    height: 80px;
+  }
+
+  .gauge-ring .bg {
+    fill: none;
+    stroke: #1e293b;
+    stroke-width: 6;
+  }
+
+  .gauge-ring .fg {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s ease, stroke 0.5s;
+  }
+
+  .gauge-ring .value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .gauge-card .gauge-detail {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  /* Checks list */
+  .section-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #111827;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: background 0.2s;
+  }
+
+  .check-row:hover { background: #1a2332; }
+
+  .check-row .check-name {
+    font-size: 13px;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .check-row .check-result {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+
+  .check-result.pass {
+    background: #064e3b;
+    color: #6ee7b7;
+  }
+
+  .check-result.warn {
+    background: #713f12;
+    color: #fde68a;
+  }
+
+  .check-result.fail {
+    background: #7f1d1d;
+    color: #fca5a5;
+  }
+
+  /* Alert log */
+  .alert-log {
+    background: #111827;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .alert-entry {
+    padding: 6px 0;
+    border-bottom: 1px solid #1e293b;
+    display: flex;
+    gap: 8px;
+  }
+
+  .alert-entry:last-child { border-bottom: none; }
+
+  .alert-entry .alert-time {
+    color: #475569;
+    white-space: nowrap;
+  }
+
+  .alert-entry .alert-icon { white-space: nowrap; }
+
+  .alert-entry .alert-msg {
+    color: #94a3b8;
+  }
+
+  .alert-entry.resolved .alert-msg { color: #6ee7b7; }
+  .alert-entry.critical .alert-msg { color: #fca5a5; }
+  .alert-entry.ongoing .alert-msg { color: #fde68a; }
+
+  /* Architecture diagram */
+  .arch-box {
+    background: #0c1222;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 16px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #94a3b8;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Feature badges */
+  .features {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  .feature-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: #111827;
+    border-radius: 8px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  .feature-badge .icon { font-size: 13px; }
+
+  /* View switcher */
+  .view-switch {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: #111827;
+    border-radius: 8px;
+    padding: 3px;
+    width: fit-content;
+  }
+
+  .view-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .view-btn.active {
+    background: #334155;
+    color: #f1f5f9;
+  }
+
+  .view-btn:hover:not(.active) { color: #e2e8f0; }
+  .hidden { display: none !important; }
+
+  /* Scenario buttons */
+  .scenario-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .scenario-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #334155;
+    background: transparent;
+    color: #94a3b8;
+    transition: all 0.2s;
+  }
+
+  .scenario-btn:hover { border-color: #475569; color: #e2e8f0; }
+  .scenario-btn.active { background: #1e293b; color: #f1f5f9; border-color: #475569; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #334155;
+    color: #f1f5f9;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show { opacity: 1; }
+
+  /* Config table */
+  .config-table {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  .config-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .config-table td:first-child {
+    color: #64748b;
+    width: 140px;
+    font-weight: 500;
+  }
+
+  .config-table td:last-child {
+    color: #e2e8f0;
+  }
+
+  @media (max-width: 480px) {
+    .app { padding: 12px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .resources-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>🏥 Health Monitor</h1>
+    <div class="status-pill healthy" id="global-status">
+      <span class="pulse-dot green" id="status-dot"></span>
+      <span id="status-text">All Clear</span>
+    </div>
+  </div>
+
+  <!-- Timestamp -->
+  <div class="timestamp-bar">
+    <span>Last check: <span id="last-check">23:00 EST</span></span>
+    <span>Next: <span id="next-check">23:30 EST</span></span>
+    <span class="cycle">Cycle <span id="cycle-num">1,247</span></span>
+  </div>
+
+  <!-- View Switcher -->
+  <div class="view-switch">
+    <button class="view-btn active" onclick="switchView('dashboard')">Dashboard</button>
+    <button class="view-btn" onclick="switchView('alerts')">Alert Log</button>
+    <button class="view-btn" onclick="switchView('architecture')">Architecture</button>
+    <button class="view-btn" onclick="switchView('config')">Config</button>
+  </div>
+
+  <!-- Scenario Buttons -->
+  <div class="scenario-bar" id="scenario-bar">
+    <span style="font-size:11px; color:#475569; padding:6px 0;">Simulate:</span>
+    <button class="scenario-btn active" onclick="setScenario('healthy', this)">✅ All Healthy</button>
+    <button class="scenario-btn" onclick="setScenario('memory-warn', this)">⚠️ Memory High</button>
+    <button class="scenario-btn" onclick="setScenario('proxy-down', this)">🔴 Proxy Down</button>
+    <button class="scenario-btn" onclick="setScenario('multi-alert', this)">🚨 Multi Alert</button>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div id="view-dashboard">
+
+    <!-- Services -->
+    <div class="section-header">Services</div>
+    <div class="services-grid">
+      <div class="service-card" id="svc-proxy">
+        <div class="svc-name">⚙️ claude-max-proxy</div>
+        <div class="svc-status ok" id="svc-proxy-status">● active</div>
+        <div class="svc-uptime" id="svc-proxy-uptime">Uptime: 4d 12h</div>
+      </div>
+      <div class="service-card" id="svc-gateway">
+        <div class="svc-name">🔌 openclaw-gateway</div>
+        <div class="svc-status ok" id="svc-gateway-status">● active</div>
+        <div class="svc-uptime" id="svc-gateway-uptime">Uptime: 2d 8h</div>
+      </div>
+    </div>
+
+    <!-- Resources -->
+    <div class="section-header">Resources</div>
+    <div class="resources-grid">
+      <div class="gauge-card">
+        <div class="gauge-label">Memory</div>
+        <div class="gauge-ring">
+          <svg viewBox="0 0 80 80">
+            <circle class="bg" cx="40" cy="40" r="34"/>
+            <circle class="fg" id="mem-ring" cx="40" cy="40" r="34"
+              stroke-dasharray="213.6" stroke-dashoffset="130"/>
+          </svg>
+          <div class="value" id="mem-val">39%</div>
+        </div>
+        <div class="gauge-detail" id="mem-detail">1.5G / 3.8G</div>
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-label">Disk</div>
+        <div class="gauge-ring">
+          <svg viewBox="0 0 80 80">
+            <circle class="bg" cx="40" cy="40" r="34"/>
+            <circle class="fg" id="disk-ring" cx="40" cy="40" r="34"
+              stroke-dasharray="213.6" stroke-dashoffset="192"/>
+          </svg>
+          <div class="value" id="disk-val">10%</div>
+        </div>
+        <div class="gauge-detail" id="disk-detail">2.1G / 21G</div>
+      </div>
+
+      <div class="gauge-card">
+        <div class="gauge-label">Load Avg</div>
+        <div class="gauge-ring">
+          <svg viewBox="0 0 80 80">
+            <circle class="bg" cx="40" cy="40" r="34"/>
+            <circle class="fg" id="load-ring" cx="40" cy="40" r="34"
+              stroke-dasharray="213.6" stroke-dashoffset="206"/>
+          </svg>
+          <div class="value" id="load-val">0.11</div>
+        </div>
+        <div class="gauge-detail" id="load-detail">threshold: 3.0</div>
+      </div>
+    </div>
+
+    <!-- Checks -->
+    <div class="section-header">Health Checks (5 categories)</div>
+    <div id="checks-list">
+      <div class="check-row">
+        <div class="check-name">⚙️ Services</div>
+        <div class="check-result pass" id="chk-services">PASS</div>
+      </div>
+      <div class="check-row">
+        <div class="check-name">🔍 Error Patterns</div>
+        <div class="check-result pass" id="chk-errors">PASS</div>
+      </div>
+      <div class="check-row">
+        <div class="check-name">📊 Resources</div>
+        <div class="check-result pass" id="chk-resources">PASS</div>
+      </div>
+      <div class="check-row">
+        <div class="check-name">🧠 Kernel</div>
+        <div class="check-result pass" id="chk-kernel">PASS</div>
+      </div>
+      <div class="check-row">
+        <div class="check-name">🔗 Proxy</div>
+        <div class="check-result pass" id="chk-proxy">PASS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTS VIEW -->
+  <div id="view-alerts" class="hidden">
+    <div class="section-header">Alert History</div>
+    <div class="alert-log" id="alert-log">
+      <div class="alert-entry resolved">
+        <span class="alert-time">22:30</span>
+        <span class="alert-icon">✅</span>
+        <span class="alert-msg">RESOLVED: Memory back to normal (was 87% for 2h)</span>
+      </div>
+      <div class="alert-entry ongoing">
+        <span class="alert-time">20:30</span>
+        <span class="alert-icon">🟡</span>
+        <span class="alert-msg">ONGOING: Memory at 87% (first detected 18:30, 4 cycles ago)</span>
+      </div>
+      <div class="alert-entry critical">
+        <span class="alert-time">18:30</span>
+        <span class="alert-icon">🔴</span>
+        <span class="alert-msg">ALERT: Memory at 89% (3.4G/3.8G)</span>
+      </div>
+      <div class="alert-entry resolved">
+        <span class="alert-time">14:00</span>
+        <span class="alert-icon">✅</span>
+        <span class="alert-msg">RESOLVED: claude-max-proxy is back up (was down 15m)</span>
+      </div>
+      <div class="alert-entry critical">
+        <span class="alert-time">13:45</span>
+        <span class="alert-icon">🔴</span>
+        <span class="alert-msg">ALERT: claude-max-proxy crashed (exit code 1)</span>
+      </div>
+      <div class="alert-entry">
+        <span class="alert-time">08:00</span>
+        <span class="alert-icon">ℹ️</span>
+        <span class="alert-msg">INFO: kernel-alerts.log is empty (no kernel errors — normal)</span>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:20px">Deduplication State</div>
+    <div style="background:#111827; border-radius:10px; padding:14px; font-family:'SF Mono','Fira Code',monospace; font-size:11px; color:#94a3b8;">
+      <div id="dedup-state">{
+  "activeAlerts": {},
+  "lastCheckTime": "2026-02-16T23:00:00-05:00"
+}</div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE VIEW -->
+  <div id="view-architecture" class="hidden">
+    <div class="section-header">System Architecture</div>
+    <div class="arch-box">
+┌─────────────────────────────────────────────────┐
+│               OpenClaw Gateway                   │
+│                                                  │
+│  ┌──────────┐   every 30 min   ┌───────────┐   │
+│  │   Cron   │ ───────────────► │  Haiku    │   │
+│  │ Scheduler│                  │ Sub-agent │   │
+│  └──────────┘                  └─────┬─────┘   │
+│                                      │          │
+│                            ┌─────────┴────────┐ │
+│                            │   Tool Calls      │ │
+│                            │                   │ │
+│                  ┌─────────┼─────────┐         │ │
+│                  ▼         ▼         ▼         │ │
+│            ┌─────────┐ ┌──────┐ ┌────────┐    │ │
+│            │  read   │ │ exec │ │message │    │ │
+│            │ (files) │ │(cmds)│ │(alert) │    │ │
+│            └────┬────┘ └──┬───┘ └───┬────┘    │ │
+│                 │         │         │         │ │
+└─────────────────┼─────────┼─────────┼─────────┘ │
+                  │         │         │            │
+        ┌─────────┘         │         └──────────┐ │
+        ▼                   ▼                    ▼ │
+ ┌─────────────┐  ┌──────────────┐      ┌────────────┐
+ │ Log Files   │  │  systemctl   │      │  Telegram   │
+ │ (~/.openclaw│  │  journalctl  │      │  (Steven)   │
+ │  /logs/)    │  │              │      │             │
+ └─────────────┘  └──────────────┘      └────────────┘
+
+ ┌─────────────┐
+ │ State File  │  ◄── alert-state.json (dedup)
+ └─────────────┘</div>
+
+    <div class="section-header" style="margin-top:20px">Data Flow</div>
+    <div style="background:#111827; border-radius:10px; padding:14px;">
+      <table class="config-table">
+        <tr><td>1. Trigger</td><td>Gateway cron fires every 30 min</td></tr>
+        <tr><td>2. Spawn</td><td>Isolated Haiku sub-agent with health prompt</td></tr>
+        <tr><td>3. Gather</td><td>Read 3 log files + run 3 system commands</td></tr>
+        <tr><td>4. Evaluate</td><td>5 check categories against thresholds</td></tr>
+        <tr><td>5. Dedup</td><td>Compare with alert-state.json</td></tr>
+        <tr><td>6. Deliver</td><td>New alerts → Telegram · Duplicates → suppressed</td></tr>
+        <tr><td>7. Respond</td><td>HEARTBEAT_OK → Gateway discards silently</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- CONFIG VIEW -->
+  <div id="view-config" class="hidden">
+    <div class="section-header">Monitor Configuration</div>
+    <div style="background:#111827; border-radius:10px; padding:14px;">
+      <table class="config-table">
+        <tr><td>Schedule</td><td>Every 30 minutes (*/30 * * * *)</td></tr>
+        <tr><td>Model</td><td>Haiku 4.5 via Max Proxy ($0.00/run)</td></tr>
+        <tr><td>Timeout</td><td>120 seconds</td></tr>
+        <tr><td>Delivery</td><td>announce mode (silent when healthy)</td></tr>
+        <tr><td>Alert channel</td><td>Telegram → @smccreary4</td></tr>
+        <tr><td>Timezone</td><td>America/Toronto (EST)</td></tr>
+      </table>
+    </div>
+
+    <div class="section-header" style="margin-top:20px">Thresholds</div>
+    <div style="background:#111827; border-radius:10px; padding:14px;">
+      <table class="config-table">
+        <tr><td>Memory</td><td>> 85% → ALERT</td></tr>
+        <tr><td>Disk</td><td>> 80% → ALERT</td></tr>
+        <tr><td>Load average</td><td>> 3.0 → ALERT</td></tr>
+        <tr><td>Log staleness</td><td>> 15 min → ALERT</td></tr>
+        <tr><td>Dedup window</td><td>2 hours (then reminder)</td></tr>
+      </table>
+    </div>
+
+    <div class="section-header" style="margin-top:20px">Error Patterns</div>
+    <div style="background:#111827; border-radius:10px; padding:14px;">
+      <table class="config-table">
+        <tr><td style="color:#6ee7b7">Match</td><td style="font-family:monospace;font-size:11px">" error:", fatal, panic, billing, rate_limit, cooldown, refused, timeout, OOM</td></tr>
+        <tr><td style="color:#fca5a5">Exclude</td><td style="font-family:monospace;font-size:11px">[Subprocess stderr]:, error_format, error.log</td></tr>
+      </table>
+    </div>
+
+    <div class="section-header" style="margin-top:20px">Cost Analysis</div>
+    <div style="background:#111827; border-radius:10px; padding:14px;">
+      <table class="config-table">
+        <tr><td>Cost per run</td><td>$0.00 (Haiku via Max subscription)</td></tr>
+        <tr><td>Runs per day</td><td>48</td></tr>
+        <tr><td>Daily cost</td><td style="color:#6ee7b7; font-weight:700">$0.00</td></tr>
+        <tr><td>Monthly cost</td><td style="color:#6ee7b7; font-weight:700">$0.00</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature-badge"><span class="icon">⏱️</span> Every 30 min</div>
+    <div class="feature-badge"><span class="icon">🤖</span> Haiku Agent</div>
+    <div class="feature-badge"><span class="icon">📱</span> Telegram Alerts</div>
+    <div class="feature-badge"><span class="icon">🔇</span> Silent When Healthy</div>
+    <div class="feature-badge"><span class="icon">🔁</span> Dedup Alerts</div>
+    <div class="feature-badge"><span class="icon">💰</span> $0.00/day</div>
+    <div class="feature-badge"><span class="icon">🛡️</span> Fault Tolerant</div>
+    <div class="feature-badge"><span class="icon">📊</span> 5 Check Categories</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CIRC = 2 * Math.PI * 34; // ~213.6
+
+const scenarios = {
+  'healthy': {
+    status: 'healthy',
+    statusText: 'All Clear',
+    services: { proxy: { status: 'active', up: '4d 12h', ok: true }, gateway: { status: 'active', up: '2d 8h', ok: true } },
+    resources: { mem: { pct: 39, detail: '1.5G / 3.8G' }, disk: { pct: 10, detail: '2.1G / 21G' }, load: { val: 0.11, pct: 4 } },
+    checks: { services: 'pass', errors: 'pass', resources: 'pass', kernel: 'pass', proxy: 'pass' }
+  },
+  'memory-warn': {
+    status: 'alert',
+    statusText: '1 Alert',
+    services: { proxy: { status: 'active', up: '4d 12h', ok: true }, gateway: { status: 'active', up: '2d 8h', ok: true } },
+    resources: { mem: { pct: 88, detail: '3.3G / 3.8G' }, disk: { pct: 10, detail: '2.1G / 21G' }, load: { val: 0.45, pct: 15 } },
+    checks: { services: 'pass', errors: 'pass', resources: 'warn', kernel: 'pass', proxy: 'pass' }
+  },
+  'proxy-down': {
+    status: 'alert',
+    statusText: '2 Alerts',
+    services: { proxy: { status: 'inactive (dead)', up: 'Down since 22:47', ok: false }, gateway: { status: 'active', up: '2d 8h', ok: true } },
+    resources: { mem: { pct: 42, detail: '1.6G / 3.8G' }, disk: { pct: 10, detail: '2.1G / 21G' }, load: { val: 0.08, pct: 3 } },
+    checks: { services: 'fail', errors: 'fail', resources: 'pass', kernel: 'pass', proxy: 'fail' }
+  },
+  'multi-alert': {
+    status: 'alert',
+    statusText: '4 Alerts',
+    services: { proxy: { status: 'inactive (dead)', up: 'Crashed at 22:15', ok: false }, gateway: { status: 'activating', up: 'Restarting...', ok: false } },
+    resources: { mem: { pct: 93, detail: '3.5G / 3.8G' }, disk: { pct: 82, detail: '17.2G / 21G' }, load: { val: 4.7, pct: 100 } },
+    checks: { services: 'fail', errors: 'fail', resources: 'fail', kernel: 'warn', proxy: 'fail' }
+  }
+};
+
+function gaugeColor(pct, thresholds) {
+  if (pct >= (thresholds?.danger || 85)) return '#ef4444';
+  if (pct >= (thresholds?.warn || 70)) return '#eab308';
+  return '#22c55e';
+}
+
+function setGauge(id, pct, detail, thresholds) {
+  const ring = document.getElementById(id + '-ring');
+  const val = document.getElementById(id + '-val');
+  const det = document.getElementById(id + '-detail');
+  const offset = CIRC - (CIRC * Math.min(pct, 100) / 100);
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = gaugeColor(pct, thresholds);
+  if (id === 'load') {
+    val.textContent = detail ? scenarios[currentScenario].resources.load.val : '0.11';
+  } else {
+    val.textContent = pct + '%';
+  }
+  val.style.color = gaugeColor(pct, thresholds);
+  if (det && detail) det.textContent = detail;
+}
+
+function setCheck(name, result) {
+  const el = document.getElementById('chk-' + name);
+  el.className = 'check-result ' + (result === 'pass' ? 'pass' : result === 'warn' ? 'warn' : 'fail');
+  el.textContent = result === 'pass' ? 'PASS' : result === 'warn' ? 'WARN' : 'FAIL';
+}
+
+let currentScenario = 'healthy';
+
+function setScenario(name, btn) {
+  currentScenario = name;
+  const s = scenarios[name];
+
+  // Scenario buttons
+  document.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  // Global status
+  const pill = document.getElementById('global-status');
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('status-text');
+  pill.className = 'status-pill ' + s.status;
+  dot.className = 'pulse-dot ' + (s.status === 'healthy' ? 'green' : 'red');
+  txt.textContent = s.statusText;
+
+  // Services
+  const proxyCard = document.getElementById('svc-proxy');
+  const proxyStatus = document.getElementById('svc-proxy-status');
+  const proxyUptime = document.getElementById('svc-proxy-uptime');
+  proxyCard.className = 'service-card' + (s.services.proxy.ok ? '' : ' down');
+  proxyStatus.className = 'svc-status ' + (s.services.proxy.ok ? 'ok' : 'fail');
+  proxyStatus.textContent = (s.services.proxy.ok ? '● ' : '✕ ') + s.services.proxy.status;
+  proxyUptime.textContent = s.services.proxy.ok ? 'Uptime: ' + s.services.proxy.up : s.services.proxy.up;
+
+  const gwCard = document.getElementById('svc-gateway');
+  const gwStatus = document.getElementById('svc-gateway-status');
+  const gwUptime = document.getElementById('svc-gateway-uptime');
+  gwCard.className = 'service-card' + (s.services.gateway.ok ? '' : ' down');
+  gwStatus.className = 'svc-status ' + (s.services.gateway.ok ? 'ok' : 'fail');
+  gwStatus.textContent = (s.services.gateway.ok ? '● ' : '✕ ') + s.services.gateway.status;
+  gwUptime.textContent = s.services.gateway.ok ? 'Uptime: ' + s.services.gateway.up : s.services.gateway.up;
+
+  // Resources
+  setGauge('mem', s.resources.mem.pct, s.resources.mem.detail, { warn: 70, danger: 85 });
+  setGauge('disk', s.resources.disk.pct, s.resources.disk.detail, { warn: 60, danger: 80 });
+  setGauge('load', s.resources.load.pct, null, { warn: 50, danger: 80 });
+  document.getElementById('load-val').textContent = s.resources.load.val;
+
+  // Checks
+  setCheck('services', s.checks.services);
+  setCheck('errors', s.checks.errors);
+  setCheck('resources', s.checks.resources);
+  setCheck('kernel', s.checks.kernel);
+  setCheck('proxy', s.checks.proxy);
+
+  showToast('Scenario: ' + name.replace('-', ' '));
+}
+
+function switchView(view) {
+  document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('view-' + view).classList.remove('hidden');
+  document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Init
+setScenario('healthy', document.querySelector('.scenario-btn'));
+</script>
+</body>
+</html>
