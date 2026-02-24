@@ -16,3 +16,12 @@
 
 Notes:
 - Disabling cron/heartbeat affects background autonomy/monitoring only; interactive Telegram messages still work normally.
+
+## 2026-02-23
+
+### Recovery from Codex cooldown / failover stuck state
+- Symptom: Codex rate limit/cooldown triggered; fallback to Gemini also failed; system appeared "stuck".
+- Fix that worked:
+  - Delete `auth-profiles.json` to clear stale persisted `errorCount` / `cooldownUntil`.
+  - Restart gateway to clear in-memory failover state.
+- Takeaway: provider cooldown metadata can persist on disk; a restart alone may not clear it.
